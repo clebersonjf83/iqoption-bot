@@ -1,0 +1,34 @@
+[GERAL]
+entrada = 5
+entrada_percentual = N
+conta = PRACTICE
+# PRACTICE / REAL
+
+stop_win = 50
+stop_loss = 50
+trailing_stop = S
+trailing_stop_valor = 25
+payout = 80
+
+martingale = S
+mgProxSinal = N
+valorGale = 2.3
+niveis = 1
+
+analisarTendencia = S
+noticias = S
+timerzone = S
+hitVela = S
+
+[CICLOS]
+usar_ciclos = S
+nivel_ciclos = 2
+
+[telegram]
+telegram_token = TOKEN DO BOT DO TELEGRAM
+telegram_id = ID DO TELEGRAM
+usar_bot = N
+
+[CONTA]
+email = adilson.junior-11@hotmail.com
+senha = Love Is Real, No?

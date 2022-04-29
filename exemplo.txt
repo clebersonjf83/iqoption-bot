@@ -1,0 +1,43 @@
+# Exemplo de linha de codigo para viabilizar stop win
+
+buscarMenor()
+    while True:
+        timeNow = timestamp_converter()
+        data_hora = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        print(data_hora, end='\x1b[K\r')
+        for row in em_espera:
+            horario = row[2]
+            if galeRepete:
+                par = parAntigo
+                direcao = direcaoAntigo
+                timeframe = timeframeAntigo
+                valor_entrada = valorGaleProxSinal
+            else:
+                par = row[1].upper()
+                direcao = row[3].lower()
+                timeframe_retorno = timeFrame(row[0])
+                timeframe = 0 if (timeframe_retorno ==
+                                  'error') else timeframe_retorno
+                if config['usar_ciclos'] == 'S':
+                    valor_entrada = valor_entrada_ciclo
+                    stop_win = abs(float(config['stop_win']))
+                    stop_loss = float(config['stop_loss']) * -1.0
+                elif entrada_percentual == 'S':
+                    valor_entrada = int(
+                        (float(config['entrada']) / 100) * (valor_da_banca + lucroTotal))
+                    percentual_loss = float(config['stop_loss'])
+                    percentual_gain = float(config['stop_win'])
+                    stop_loss = int((percentual_loss / 100)
+                                    * valor_da_banca) * -1
+                    stop_win = int((percentual_gain / 100) * valor_da_banca)
+                else:
+                    valor_entrada = float(config['entrada'])
+                    stop_win = abs(float(config['stop_win']))
+                    stop_loss = float(config['stop_loss']) * -1.0
+            if len(horario) == 5:
+                s = horario + ":00"
+            else:
+                s = horario
+            f = '%H:%M:%S'
+            dif = (datetime.strptime(timeNow, f) -
+                   datetime.strptime(s, f)).total_seconds()
