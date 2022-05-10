@@ -591,3 +591,128 @@ while True:
         config['banca_inicial'] = valor_da_banca
         print(f"{Fore.LIGHTBLUE_EX}Saldo da conta {'demo' if account_type == 'PRACTICE' else 'real'}: {account_balance}")
         break
+try:
+    buscarMenor()
+    while True:
+
+
+        if config['soros'] == 'S':  
+            soros()
+        
+        
+        else:
+            timeNow = timestamp_converter()
+            data_hora = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            print(data_hora, end='\x1b[K\r')
+            for row in em_espera:
+                horario = row[2]
+                if galeRepete:
+                    par = parAntigo
+                    direcao = direcaoAntigo
+                    timeframe = timeframeAntigo
+                    valor_entrada = valorGaleProxSinal
+                else:
+                    par = row[1].upper()
+                    direcao = row[3].lower()
+                    timeframe_retorno = timeFrame(row[0])
+                    timeframe = 0 if (timeframe_retorno ==
+                                    'error') else timeframe_retorno
+                    if config['usar_ciclos'] == 'S':
+                        valor_entrada = valor_entrada_ciclo
+                        stop_win = abs(float(config['stop_win']))
+                        stop_loss = float(config['stop_loss']) * -1.0
+                    elif entrada_percentual == 'S':
+                        valor_entrada = int(
+                            (float(config['entrada']) / 100) * (valor_da_banca + lucroTotal))
+                        percentual_loss = float(config['stop_loss'])
+                        percentual_gain = float(config['stop_win'])
+                        stop_loss = int((percentual_loss / 100)
+                                        * valor_da_banca) * -1
+                        stop_win = int((percentual_gain / 100) * valor_da_banca)
+                    else:
+                        valor_entrada = float(config['entrada'])
+                        stop_win = abs(float(config['stop_win']))
+                        stop_loss = float(config['stop_loss']) * -1.0
+                if len(horario) == 5:
+                    s = horario + ":00"
+                else:
+                    s = horario
+                f = '%H:%M:%S'
+                dif = (datetime.strptime(timeNow, f) -
+                    datetime.strptime(s, f)).total_seconds()
+
+                if (dif == -40) and get_profit == True:
+                    get_profit = False
+                    Get_All_Profit()
+                    paridades_fechadas = []
+
+                if dif == -20:
+                    opcao, payout = checkProfit(par, timeframe)
+                    if not opcao:
+                        paridades_fechadas.append(par)
+
+                if dif == -2:
+                    impacto, moeda, hora, stts = noticas(par)
+                    if stts:
+                        print(
+                            f' NOTÍCIA COM IMPACTO DE {impacto} TOUROS NA MOEDA {moeda} ÀS {hora}!\n')
+                        time.sleep(1)
+                    else:
+                        if timerzone(int(timeframe)):
+                            print('HORÁRIO NÃO RECOMENDADO PELO TIMERZONE!')
+                            time.sleep(1)
+                        else:
+                            
+                            
+                            if analisarTendencia == 'S':
+                                tend = Verificar_Tendencia(par, timeframe)
+                            else:
+                                tend = direcao
+
+                            if hitdeVela == 'S':
+                                hit = Filtro_Hit_Vela(par, timeframe)
+                            else:
+                                hit = False
+
+                            if tend != direcao:
+                                print(f' PARIDADE {par} CONTRA TENDÊNCIA!\n')
+                                time.sleep(1)
+
+                            else:
+                                if hit:
+                                    print(f' HIT DE VELA NA PARIDADE {par}!\n')
+                                    time.sleep(1)
+
+                                elif par not in paridades_fechadas and payout >= payout_minimo:
+                                    thread_ativas = threading.active_count()
+                                    if config['usar_ciclos'] == 'S' and thread_ativas > 2:
+                                        print(
+                                            ' OPERAÇÃO EM ANDAMENTO. ABORTANDO ENTRADA!')
+                                        time.sleep(5)
+                                        break
+                                    else:
+                                        operar(valor_entrada, par, direcao,
+                                            timeframe, horario, opcao, payout)
+                                    if config['usar_ciclos'] == 'S':
+                                        break
+                                else:
+                                    if par in paridades_fechadas:
+                                        print(f' PARIDADE {par} FECHADA!\n')
+                                    else:
+                                        print(
+                                            ' PAYOUT ABAIXO DO MINIMO ESTABELECIDO!\n')
+                                        time.sleep(1)
+
+                if dif > 0:
+                    buscarMenor()
+                    break
+            verificarStop()
+            time.sleep(0.5)
+
+except KeyboardInterrupt:
+    banca()
+    mensagem = f'Operações: {total_operacoes} | Vencedoras: {vitorias} | Perdedoras: {derrotas}\nAssertividade: {total_porcentagem}%\n'
+    mensagem += f"Saldo da conta {'demo' if account_type == 'PRACTICE' else 'real'}: {account_balance}"
+    print(f'{Fore.BLUE}{mensagem}')
+    Mensagem(mensagem)
+    exit()

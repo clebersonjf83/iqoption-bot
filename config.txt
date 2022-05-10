@@ -6,7 +6,7 @@ conta = PRACTICE
 
 stop_win = 50
 stop_loss = 50
-trailing_stop = S
+trailing_stop = N
 trailing_stop_valor = 25
 payout = 80
 
@@ -15,14 +15,17 @@ mgProxSinal = N
 valorGale = 2.3
 niveis = 1
 
-analisarTendencia = S
-noticias = S
-timerzone = S
-hitVela = S
+analisarTendencia = N
+noticias = N
+timerzone = N
+hitVela = N
 
 [CICLOS]
-usar_ciclos = S
+usar_ciclos = N
 nivel_ciclos = 2
+
+[SOROS]
+usar_soros = S
 
 [telegram]
 telegram_token = TOKEN DO BOT DO TELEGRAM
