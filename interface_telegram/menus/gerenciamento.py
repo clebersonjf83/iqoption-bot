@@ -5,15 +5,16 @@ from telegram.ext.callbackcontext import CallbackContext # Não usaremos sua fun
 from telegram.ext.commandhandler import CommandHandler #Esta classe Handler é usada para lidar com qualquer comando enviado pelo usuário ao bot, um comando sempre começa com “/” ou seja, “/start”,”/help” etc.
 from telegram.ext.messagehandler import MessageHandler #Esta classe Handler é usada para lidar com qualquer mensagem normal enviada pelo usuário ao bot
 from telegram.ext.filters import Filters # Isso filtrará texto normal, comandos, imagens, etc. de uma mensagem enviada.
-
+from iq import verificarSaldo
 
 def entrarEmGerenciamento(update: Update, context: CallbackContext):
    
-    banca = 0
+    banca = verificarSaldo()
     delay = 2
     stop_win = 0
     stop_loss = 0
 
+    
 
     mainbutton = [
         ['💰 Banca : R$' + str(banca) ,'⏱️ Delay : ' + str(delay)],
