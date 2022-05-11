@@ -21,6 +21,7 @@ def entrarEmGerenciamento(update: Update, context: CallbackContext):
         ['Voltar']
     ]
     
+    
     keyBoard1 = ReplyKeyboardMarkup(mainbutton , resize_keyboard=True)
     message_reply_text = 'Painel de gerênciamento'
     update.message.reply_text(message_reply_text, reply_markup= keyBoard1)
