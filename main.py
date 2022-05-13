@@ -148,7 +148,6 @@ if traderTimerZone == 'S':
     except:
         print('Erro ao carregar json do Trader Timer Zone!!')
         traderTimerZone = 'N'
-API = IQ_Option(email, senha)
 
 
 def Mensagem(mensagem):

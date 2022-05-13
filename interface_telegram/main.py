@@ -8,9 +8,10 @@ from telegram.ext.messagehandler import MessageHandler #Esta classe Handler é u
 from telegram.ext.filters import Filters # Isso filtrará texto normal, comandos, imagens, etc. de uma mensagem enviada.
 import re
 
-from dados import verificarUsuarioTemChatLigado,VinculaContaAoChatID, configurarBaseDeDados,verificaEmailExisteBaseDeDados
+from dados import retornaTodosDadosDoUsuario,verificarUsuarioTemChatLogado,VinculaContaAoChatID, configurarBaseDeDados,verificaEmailExisteBaseDeDados,entrarModoAlteracao,verificaUsuarioEmAlteracao
 
-from menus.gerenciamento import entrarEmGerenciamento
+
+from menus.gerenciamento import entrarEmGerenciamento, alterarDelay,alterarStopWin,alterarStopLoss,alterarEmailIQ, alterarSenhaIQ,alterarModoReal
 from menus.modooperacao import entrarEmModoOperacao
 #from core.usuario import verificaEmailCadastrado
 
@@ -33,7 +34,6 @@ def validarEmail(update: Update, context: CallbackContext):
 
     if not re.match(r"[^@]+@[^@]+\.[^@]+",  update.message.text):
         update.message.reply_text("Formato de email invalido.")
-        update.message.reply_text("O email informado não foi encontrado em nossa base de dados.")
     else: 
 
         existe = verificaEmailExisteBaseDeDados(update.message.chat_id, update.message.text)
@@ -55,40 +55,87 @@ def validarEmail(update: Update, context: CallbackContext):
     
 
 
+def verificaComandosDeAlteracao(mensagem):
+    alteracao = False
 
+    if(mensagem == 'Alterar Gerenciamento' or mensagem == 'Conta IQOption'):
+        alteracao = True
+    
+    return alteracao
+
+def alteracao(update: Update, context: CallbackContext):
+    
+    cliente = retornaTodosDadosDoUsuario(update.message.chat_id)[0]
+    
+    # Gerenciamento
+    if(cliente[0][7] == 1):
+        if(cliente[0][8] == 1):
+            alterarDelay(update,context)
+        if(cliente[0][8] == 2):
+            alterarStopWin(update,context)
+        if(cliente[0][8] == 3):
+            alterarStopLoss(update,context)
+    
+    if(cliente[0][7] == 2):
+        if(cliente[0][8] == 1):
+            alterarEmailIQ(update,context)
+        if(cliente[0][8] == 2):
+            alterarSenhaIQ(update,context)
+        if(cliente[0][8] == 3):
+            alterarModoReal(update,context)
 
 
 def recepcionar(update: Update, context: CallbackContext):
-    configurarBaseDeDados()
+    #configurarBaseDeDados()
     
-    Logado = verificarUsuarioTemChatLigado(update.message.chat_id)
+    Logado = verificarUsuarioTemChatLogado(update.message.chat_id)
    
     # Verifica se o usuario ja esta logado nessa conversa
     if(Logado):
-        if(update.message.text == 'Voltar'):
-            mainbutton = [
-                ['🧠 Gerênciamento','⚙️ Modo de Operação'],
-                ['🎯 Lista','🚨 Suporte'],
-                ['🤖 Operar']
-            ]
 
-            keyBoard1 = ReplyKeyboardMarkup(mainbutton , resize_keyboard=True)
-            message_reply_text = 'Menu Principal'
-            update.message.reply_text(message_reply_text, reply_markup= keyBoard1)
+        #verifica se o usuario esta fazendo alguma alteração 
+        if(verificaUsuarioEmAlteracao(update.message.chat_id)):
+            alteracao(update, context)
 
-        else:       
+        else:
+            if(update.message.text == 'Voltar'):
+                mainbutton = [
+                    ['🧠 Gerênciamento','⚙️ Modo de Operação'],
+                    ['🎯 Lista','🚨 Suporte'],
+                    ['🤖 Operar']
+                ]
 
-            if(update.message.text == '🧠 Gerênciamento'):
-                entrarEmGerenciamento(update,context)
+                keyBoard1 = ReplyKeyboardMarkup(mainbutton , resize_keyboard=True)
+                message_reply_text = 'Menu Principal'
+                update.message.reply_text(message_reply_text, reply_markup= keyBoard1)
 
-            else:
-                if(update.message.text == '⚙️ Modo de Operação'):
-                    entrarEmModoOperacao(update,context)
+            else:       
+
+                #Verificar se o que o usuario esta tentando fazer é alguma alteração
+                if(verificaComandosDeAlteracao(update.message.text)):
+                                    
+                    if(update.message.text == 'Alterar Gerenciamento'):
+                        entrarModoAlteracao(update.message.chat_id, 1, 1)
+                        update.message.reply_text("Informe o valor de Delay para cada operação :")      
+
+                    if(update.message.text == 'Conta IQOption'):
+                        entrarModoAlteracao(update.message.chat_id, 2, 1)
+                        update.message.reply_text("Informe seu email na IQOption :")      
+
+
                 else:
-                    if not re.match(r"[^@]+@[^@]+\.[^@]+", update.message.text):
-                        update.message.reply_text("Por favor informe um email válido")
+
+                    if(update.message.text == '🧠 Gerênciamento'):
+                        entrarEmGerenciamento(update,context)
+
                     else:
-                        validarEmail(update,context)       
+                        if(update.message.text == '⚙️ Modo de Operação'):
+                            entrarEmModoOperacao(update,context)
+                        else:
+                            if not re.match(r"[^@]+@[^@]+\.[^@]+", update.message.text):
+                                update.message.reply_text("Por favor informe um email válido")
+                            else:
+                                validarEmail(update,context)       
 
     else: 
         validarEmail(update,context)
