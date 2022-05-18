@@ -12,13 +12,13 @@ import re
 def entrarEmGerenciamento(update: Update, context: CallbackContext):
    
     banca,iqoptionConfigurado = verificarSaldo(update.message.chat_id)
-    cliente,gerenciamento = retornaTodosDadosDoUsuario(update.message.chat_id)
+    cliente,gerenciamento,gerenciamento_mao_fixa = retornaTodosDadosDoUsuario(update.message.chat_id)
 
     if(len(gerenciamento) == 0):
         comando = "INSERT INTO gerenciamento (delay, stop_win, stop_loss, cliente, iqoption_email, iqoption_senha, iqoption_real )"
         comando += " VALUES (  0, 0, 0, (select id from clientes where chat_id = '" + str(update.message.chat_id) + "'),'', '', false);"
         executarComando(comando)
-        cliente,gerenciamento = retornaTodosDadosDoUsuario(update.message.chat_id)
+        cliente,gerenciamento,gerenciamento_mao_fixa = retornaTodosDadosDoUsuario(update.message.chat_id)
 
                          
 
